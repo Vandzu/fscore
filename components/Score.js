@@ -18,24 +18,31 @@ export default function Score({navigation}) {
 
     const finishGame = async () => {
         try {
-            setGoals1(0);
-            setGoals2(0);
-            const games = [...gamesState];
-            const id = games[games.length - 1].id;
-            games.push({
-                id: id + 1,
-                team1: 0,
-                team2: 0,
-            });
-            await AsyncStorage.setItem('games', JSON.stringify(games));
-            await AsyncStorage.setItem('currentGame', `${id + 1}`);
-            setCurrentGameState(id + 1);
-            setGameStart(false);
-            setGamesState(games);
+          setGoals1(0);
+          setGoals2(0);
+
+          const games = await AsyncStorage.getItem('games');
+          const gamesCopy = JSON.parse(games) || [];
+          const lastGameId = gamesCopy.length > 0 ? gamesCopy[gamesCopy.length - 1].id : 0;
+          const newGame = {
+            id: lastGameId + 1,
+            team1: 0,
+            team2: 0,
+          };
+      
+          const updatedGames = [...gamesCopy, newGame];
+      
+          await AsyncStorage.setItem('games', JSON.stringify(updatedGames));
+          await AsyncStorage.setItem('currentGame', `${lastGameId + 1}`);
+      
+          setGamesState(updatedGames);
+          setCurrentGameState(lastGameId + 1);
+          setGameStart(false);
         } catch (err) {
-            console.log(err);
+          console.log(err);
         }
-    }
+      };
+      
 
     const handleGames = async (name, value) => {
         try {
@@ -236,7 +243,7 @@ export default function Score({navigation}) {
                     </TouchableOpacity>
                 )}
             </View>
-            {/* <Menu navigation={navigation}/> */}
+            { <Menu navigation={navigation}/> }
             <StatusBar style="auto" />
         </View>
     );
