@@ -16,6 +16,8 @@ export default function Score({navigation}) {
     const [currentGameState, setCurrentGameState] = useState(0);
     const appState = useRef(AppState.currentState);
     const [appStateVisible, setAppStateVisible] = useState(appState.current);
+    const [team1Name, setTeam1Name] = useState('Time 1');
+    const [team2Name, setTeam2Name] = useState('Time 2');
 
     useFocusEffect(
         React.useCallback(() => {
@@ -114,6 +116,7 @@ export default function Score({navigation}) {
 
     useEffect(() => {
         getPreviousData();
+        getTeamNames();
     }, [])
 
     useEffect(() => {
@@ -145,6 +148,30 @@ export default function Score({navigation}) {
             setGameStart(true);
         }
     }
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+          getTeamNames();
+        });
+    
+        return unsubscribe;
+      }, [navigation]);
+
+    const getTeamNames = async () => {
+        try {
+          const names = await AsyncStorage.getItem('teamNames');
+          if (names) {
+            const teamNamesArray = JSON.parse(names);
+            if(teamNamesArray.length > 0){
+                setTeam1Name(teamNamesArray[teamNamesArray.length - 2]);
+                setTeam2Name(teamNamesArray[teamNamesArray.length - 1]);
+            }
+          }
+        } catch (error) {
+            setTeam1Name('Time 1');
+            setTeam2Name('Time 2');
+            console.log('Erro ao recuperar os nomes dos times:', error);
+        }
+      };
 
     const handleGoals = (name, value) => {
         if (stateHistory.length > 10) {
@@ -190,7 +217,7 @@ export default function Score({navigation}) {
         <View style={styles.container}>
             <View style={styles.score}>
                 <View style={styles.team}>
-                    <Text>Time 1</Text>
+                    <Text>{team1Name}</Text>
                     <Text style={styles.goals1}>{goals1}</Text>
                     {gameStart && (
                         <TouchableOpacity
@@ -204,7 +231,7 @@ export default function Score({navigation}) {
                     )}
                 </View>
                 <View style={styles.team}>
-                    <Text>Time 2</Text>
+                    <Text>{team2Name}</Text>
                     <Text style={styles.goals2}>{goals2}</Text>
                     {gameStart && (
                         <TouchableOpacity
@@ -252,7 +279,7 @@ export default function Score({navigation}) {
                     </TouchableOpacity>
                 )}
             </View>
-            { <Menu navigation={navigation}/> }
+            { <Menu navigation={navigation} gameStart={gameStart}/> }
             <StatusBar style="auto" />
         </View>
     );
@@ -312,7 +339,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 14,
         paddingHorizontal: 32,
-        borderRadius: 4,
+        borderRadius: 10,
         elevation: 3,
         backgroundColor: 'green',
         marginBottom: 10
@@ -329,7 +356,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 14,
         paddingHorizontal: 32,
-        borderRadius: 4,
+        borderRadius: 10,
         borderColor: 'gray',
         borderWidth: 2,
         marginBottom: 10
@@ -346,7 +373,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 14,
         paddingHorizontal: 32,
-        borderRadius: 4,
+        borderRadius: 10,
         borderColor: 'red',
         borderWidth: 2,
         marginBottom: 10
