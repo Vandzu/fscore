@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import Timer from './Timer';
 import Menu from './Menu';
 
@@ -15,6 +16,14 @@ export default function Score({navigation}) {
     const [currentGameState, setCurrentGameState] = useState(0);
     const appState = useRef(AppState.currentState);
     const [appStateVisible, setAppStateVisible] = useState(appState.current);
+
+    useFocusEffect(
+        React.useCallback(() => {
+          navigation.setOptions({
+            title: 'Placar',
+          });
+        }, [])
+      );
 
     const finishGame = async () => {
         try {

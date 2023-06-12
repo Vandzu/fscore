@@ -1,10 +1,19 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Menu from "./Menu";
+import { useFocusEffect } from '@react-navigation/native';
+
 
 export default function History({ navigation }) {
   const [gamesState, setGamesState] = useState([]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      navigation.setOptions({
+        title: 'Resultados',
+      });
+    }, [])
+  );
 
   const renderGames = () => {
     return gamesState
