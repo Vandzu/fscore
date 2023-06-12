@@ -1,25 +1,21 @@
-import { View, StyleSheet, Button } from "react-native";
+import React from 'react';
+import { View, Button, StyleSheet } from 'react-native';
 
-export default function Menu({navigation}) {
-
-    return (
-        <View style={styles.menu}>
-            <Button
-                title="Placar"
-                onPress={navigation.navigate('Score')}
-            >
-            </Button>
-            <Button
-                title='Histórico'
-                onPress={navigation.navigate('History')}
-            >
-            </Button>
-        </View>
-    )
+export default function Menu({ navigation }) {
+  return (
+    <View style={styles.menu}>
+      <Button
+        title="Resultados"
+        onPress={() => navigation.navigate('History')}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    menu: {
-        flexDirection: 'row'
-    }
-})
+  menu: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+});

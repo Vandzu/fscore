@@ -1,5 +1,4 @@
-
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Menu from "./Menu";
@@ -9,7 +8,7 @@ export default function History({ navigation }) {
 
   const renderGames = () => {
     return gamesState
-      .filter((item,index) => item.id != null && item.id !== undefined && item.id !== '' && index !== gamesState.length - 1)
+      .filter((item, index) => item.id != null && item.id !== undefined && item.id !== '' && index !== gamesState.length - 1)
       .map((item, index) => (
         <View style={styles.gameContainer} key={item.id}>
           <Text style={styles.gameText}>
@@ -18,15 +17,10 @@ export default function History({ navigation }) {
         </View>
       ));
   };
-  
-  
-
-  
 
   const getGames = async () => {
     const games = await AsyncStorage.getItem("games");
     const gamesCopy = JSON.parse(games);
-    console.log("gamesCopy: ", gamesCopy);
     setGamesState(gamesCopy);
   };
 
@@ -39,7 +33,9 @@ export default function History({ navigation }) {
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Histórico de Partidas</Text>
       </View>
-      <View style={styles.gamesContainer}>{renderGames()}</View>
+      <ScrollView contentContainerStyle={styles.gamesContainer}>
+        {renderGames()}
+      </ScrollView>
       {/* <Menu navigation={navigation}/> */}
     </View>
   );
@@ -59,7 +55,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   gamesContainer: {
-    flex: 1,
+    flexGrow: 1,
   },
   gameContainer: {
     marginBottom: 10,
