@@ -3,10 +3,12 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 import Timer from './Timer';
 import Menu from './Menu';
 
-export default function Score({navigation}) {
+
+export default function Score({ navigation }) {
     const [goals1, setGoals1] = useState(0);
     const [goals2, setGoals2] = useState(0);
     const [gameStart, setGameStart] = useState(false);
@@ -15,45 +17,54 @@ export default function Score({navigation}) {
     const [gamesState, setGamesState] = useState([]);
     const [currentGameState, setCurrentGameState] = useState(0);
     const appState = useRef(AppState.currentState);
-    const [appStateVisible, setAppStateVisible] = useState(appState.current);
     const [team1Name, setTeam1Name] = useState('Time 1');
     const [team2Name, setTeam2Name] = useState('Time 2');
 
     useFocusEffect(
         React.useCallback(() => {
-          navigation.setOptions({
-            title: 'Placar',
-          });
+            navigation.setOptions({
+                title: 'Placar',
+            });
         }, [])
-      );
+    );
 
     const finishGame = async () => {
         try {
-          setGoals1(0);
-          setGoals2(0);
+            setGoals1(0);
+            setGoals2(0);
 
-          const games = await AsyncStorage.getItem('games');
-          const gamesCopy = JSON.parse(games) || [];
-          const lastGameId = gamesCopy.length > 0 ? gamesCopy[gamesCopy.length - 1].id : 0;
-          const newGame = {
-            id: lastGameId + 1,
-            team1: 0,
-            team2: 0,
-          };
-      
-          const updatedGames = [...gamesCopy, newGame];
-      
-          await AsyncStorage.setItem('games', JSON.stringify(updatedGames));
-          await AsyncStorage.setItem('currentGame', `${lastGameId + 1}`);
-      
-          setGamesState(updatedGames);
-          setCurrentGameState(lastGameId + 1);
-          setGameStart(false);
+            const games = await AsyncStorage.getItem('games');
+            const teamNames = await AsyncStorage.getItem('teamNames');
+            const teamNamesParsed = JSON.parse(teamNames);
+            const gamesCopy = JSON.parse(games) || [];
+            gamesCopy[gamesCopy.length - 1].teamName1 = teamNamesParsed[0];
+            gamesCopy[gamesCopy.length - 1].teamName2 = teamNamesParsed[1];
+            const lastGameId = gamesCopy.length > 0 ? gamesCopy[gamesCopy.length - 1].id : 0;
+            const newGame = {
+                id: lastGameId + 1,
+                team1: 0,
+                team2: 0,
+            };
+
+            const updatedGames = [...gamesCopy, newGame];
+
+            await AsyncStorage.setItem('games', JSON.stringify(updatedGames));
+            await AsyncStorage.setItem('currentGame', `${lastGameId + 1}`);
+
+            setGamesState(updatedGames);
+            setCurrentGameState(lastGameId + 1);
+            setGameStart(false);
+            setPause(false);
+            Toast.show({
+                type: 'success',
+                text1: 'Resultado salvo',
+                text2: 'O resultado foi salvo com sucesso.',
+              });
         } catch (err) {
-          console.log(err);
+            console.log(err);
         }
-      };
-      
+    };
+
 
     const handleGames = async (name, value) => {
         try {
@@ -61,7 +72,7 @@ export default function Score({navigation}) {
             if (!gamesState.length) {
                 games = await AsyncStorage.getItem('games');
                 if (!games) {
-                    games = [{ id: 1, team1: 0, team2: 0}];
+                    games = [{ id: 1, team1: 0, team2: 0 }];
                     const arr = JSON.stringify(games);
                     await AsyncStorage.setItem('games', arr);
                 } else {
@@ -119,28 +130,6 @@ export default function Score({navigation}) {
         getTeamNames();
     }, [])
 
-    useEffect(() => {
-        const subscription = AppState.addEventListener('change', nextAppState => {
-            if (
-                appState.current.match(/inactive|background/) &&
-                nextAppState === 'active'
-            ) {
-                console.log('App has come to the foreground!');
-            }
-
-            appState.current = nextAppState;
-            setAppStateVisible(appState.current);
-            console.log('AppState', appState.current);
-            if (appState.current == 'background') {
-                console.log('salvar o tempo...');
-            }
-        });
-
-        return () => {
-            subscription.remove();
-        };
-    }, []);
-
     const handleStateGame = () => {
         if (gameStart) {
             setPause(!pause)
@@ -150,28 +139,28 @@ export default function Score({navigation}) {
     }
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
-          getTeamNames();
+            getTeamNames();
         });
-    
+
         return unsubscribe;
-      }, [navigation]);
+    }, [navigation]);
 
     const getTeamNames = async () => {
         try {
-          const names = await AsyncStorage.getItem('teamNames');
-          if (names) {
-            const teamNamesArray = JSON.parse(names);
-            if(teamNamesArray.length > 0){
-                setTeam1Name(teamNamesArray[teamNamesArray.length - 2]);
-                setTeam2Name(teamNamesArray[teamNamesArray.length - 1]);
+            const names = await AsyncStorage.getItem('teamNames');
+            if (names) {
+                const teamNamesArray = JSON.parse(names);
+                if (teamNamesArray.length > 0) {
+                    setTeam1Name(teamNamesArray[teamNamesArray.length - 2]);
+                    setTeam2Name(teamNamesArray[teamNamesArray.length - 1]);
+                }
             }
-          }
         } catch (error) {
             setTeam1Name('Time 1');
             setTeam2Name('Time 2');
             console.log('Erro ao recuperar os nomes dos times:', error);
         }
-      };
+    };
 
     const handleGoals = (name, value) => {
         if (stateHistory.length > 10) {
@@ -230,6 +219,16 @@ export default function Score({navigation}) {
                         </TouchableOpacity>
                     )}
                 </View>
+                <View style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 32, fontWeight: 'bold'}}>
+                        X
+                    </Text>
+                    <Text>
+                        {gameStart && (
+                            <Timer pause={pause} />
+                        )}
+                    </Text>
+                </View>
                 <View style={styles.team}>
                     <Text>{team2Name}</Text>
                     <Text style={styles.goals2}>{goals2}</Text>
@@ -244,9 +243,6 @@ export default function Score({navigation}) {
                         </TouchableOpacity>
                     )}
                 </View>
-                {gameStart && (
-                    <Timer pause={pause} />
-                )}
             </View>
             <View style={styles.actionBtns}>
                 <TouchableOpacity
@@ -279,7 +275,7 @@ export default function Score({navigation}) {
                     </TouchableOpacity>
                 )}
             </View>
-            { <Menu navigation={navigation} gameStart={gameStart}/> }
+            {<Menu navigation={navigation} gameStart={gameStart} />}
             <StatusBar style="auto" />
         </View>
     );

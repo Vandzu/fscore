@@ -21,7 +21,7 @@ export default function History({ navigation }) {
       .map((item, index) => (
         <View style={styles.gameContainer} key={item.id}>
           <Text style={styles.gameText}>
-            {`${item.id} - Time1: ${item.team1} X Time2: ${item.team2}`}
+            {`${item.id} - ${item.teamName1} ${item.team1} X ${item.team2} ${item.teamName2}`}
           </Text>
         </View>
       ));
@@ -45,7 +45,6 @@ export default function History({ navigation }) {
       <ScrollView contentContainerStyle={styles.gamesContainer}>
         {renderGames()}
       </ScrollView>
-      {/* <Menu navigation={navigation}/> */}
     </View>
   );
 }

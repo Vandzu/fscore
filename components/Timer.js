@@ -22,13 +22,13 @@ export default function Timer ({pause}) {
         let timeParsed = '';
         let seconds = time;
 
-        if (time > 60) {
+        if (time > 59) {
             const minutes = parseInt(time / 60);
             seconds = parseInt(seconds % 60);
-            seconds = `${seconds < 9 ? '0' : ''}${seconds}`;
-            timeParsed = `${minutes < 9 ? '0' : ''}${minutes}:${seconds}`;
+            seconds = `${seconds < 10 ? '0' : ''}${seconds}`;
+            timeParsed = `${minutes < 10 ? '0' : ''}${minutes}:${seconds}`;
         } else {
-            seconds = `${seconds < 9 ? '0' : ''}${seconds}`
+            seconds = `${seconds < 10 ? '0' : ''}${seconds}`
             timeParsed = `00:${seconds}`
         }
         return timeParsed;

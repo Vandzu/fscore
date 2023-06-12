@@ -62,16 +62,20 @@ export default function Config({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Text style={{alignSelf: 'flex-start'}}>
+        Nome do time 1
+      </Text>
       <TextInput
         style={styles.input}
-        placeholder="Nome do Time 1"
         value={team1Name}
         onChangeText={text => setTeam1Name(text)}
         required
       />
+      <Text style={{alignSelf: 'flex-start'}}>
+        Nome do time 2
+      </Text>
       <TextInput
         style={styles.input}
-        placeholder="Nome do Time 2"
         value={team2Name}
         onChangeText={text => setTeam2Name(text)}
         required
